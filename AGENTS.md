@@ -51,12 +51,31 @@ When updating a row:
 
 ## Word Selection
 
-When the user asks for a new learning article, determine:
+Vocabulary libraries are uploaded by users. They may be alphabetical, thematic,
+manually ordered, or unordered. Table order has no default learning meaning.
+Do not choose words simply because they appear next to each other in the
+library, and do not use the beginning of the table as a default source of words.
 
-- library name, defaulting to the only obvious library if there is one;
-- target word count, defaulting to `10` if the user does not specify;
-- article type, defaulting to a story if the user does not specify;
-- language and difficulty, matching the user's request when provided.
+When the user asks for a new learning article, first determine these inputs:
+
+- library name;
+- word selection mode, defaulting to agent-selected random words if the user
+  does not specify exact words;
+- target word count;
+- article type, such as story, non-fiction, dialogue, news report, or essay;
+- target article length;
+- language and difficulty, when relevant.
+
+If any required inputs other than word selection mode are missing, ask the user
+for the missing information before generating the article. Ask only for the
+missing fields. If there is only one obvious library, the agent may mention it
+as the suggested choice, but still confirm it when other required inputs are
+missing.
+
+If the user wants to choose words, ask them to provide the exact vocabulary
+entries or enough identifying text to match rows in the library. If the user
+does not specify words, randomly sample from eligible words according to the
+priority rules below.
 
 Selection priority:
 
@@ -65,6 +84,12 @@ Selection priority:
 3. Previously seen words with low `出现次数`.
 4. `mastered` words only when the user asks for review of mastered words.
 5. Never select `ignored` words unless explicitly requested.
+
+Within each priority group, randomize the candidate order before selecting.
+Avoid selecting adjacent table rows unless the eligible pool is too small or the
+user explicitly requested those words. If mixing new and review words,
+randomize within each pool, then combine the chosen words in a natural article
+planning order instead of table order.
 
 Use this simple spaced repetition schedule until the project has a script:
 
@@ -139,10 +164,26 @@ Checklist format:
 The checklist is for the learner's mastery confirmation. Generating an article
 does not automatically mean the word is mastered.
 
+## Generation and Validation Order
+
+For article-generation tasks, use this order:
+
+1. Select the target words.
+2. Write or update the article file.
+3. Validate the article content before changing the vocabulary library.
+4. If article validation fails, revise the article and validate again.
+5. Only after the article passes validation, update the selected rows in the
+   source library.
+6. Validate the library update.
+
+The vocabulary library must not be updated until the article itself has passed
+validation. This prevents marking words as seen when the article does not
+correctly include or teach them.
+
 ## Library Update After Article Generation
 
-After writing the article, update the source library rows for the selected
-words only.
+After the article passes validation, update the source library rows for the
+selected words only.
 
 For each selected word:
 
@@ -162,18 +203,30 @@ progress, update those checked words to `mastered`. Leave unchecked words as
 
 Before finishing any article-generation task, verify:
 
+Article validation before updating the library:
+
 - The article file exists in the expected `Articals/<LibraryName>/` directory.
 - YAML frontmatter includes the library, creation date, article type, count, and
   selected words.
 - Every selected word is present in the article body.
 - Every selected word has at least one bolded occurrence.
 - The checklist contains exactly the selected words.
+- The article matches the requested type, length, language, and difficulty.
+- Grammar, spelling, punctuation, and word usage are correct and natural for the
+  target level.
+- The article is coherent and readable; if it is non-fiction, avoid unsupported
+  factual claims or verify them before using them.
+
+Library validation after updating the library:
+
 - The library table still has the same header and row order.
 - Only selected word rows were changed.
 - Dates use `YYYY-MM-DD`.
 - `出现次数` values are numeric.
 
-If validation fails, fix the files before responding.
+If article validation fails, fix the article before updating the library. If
+library validation fails, fix the library rows without changing unrelated rows.
+Do not respond until all validation passes.
 
 ## Future Hardening
 
