@@ -12,13 +12,11 @@ regardless of which coding or writing agent is being used.
 
 - `Libraries/`: vocabulary libraries. Each Markdown file is one library.
   Example: `Libraries/PET.md`.
-- `Articals/`: generated learning articles. Keep this spelling for now because
-  the current vault already uses it. Example: `Articals/PET/`.
+- `Articles/`: generated learning articles. Example: `Articles/PET/`.
 - `AGENTS.md`: this operating guide.
 
-Do not create a parallel `Articles/` directory unless the user explicitly asks
-for a migration. If a migration happens later, update this guide and move all
-existing generated articles in one controlled change.
+Do not create a parallel misspelled article directory. Generated learning
+articles belong under `Articles/`.
 
 ## Vocabulary Table Schema
 
@@ -26,7 +24,8 @@ Libraries are Markdown tables with these columns:
 
 | Column | Meaning |
 | :--- | :--- |
-| `单词` | Vocabulary entry, including part of speech or phrase notes when present. |
+| `单词` | Target expression that should appear in generated articles and be bolded. |
+| `释义` | Optional human-readable notes, such as part of speech, Chinese meaning, variants, region notes, or usage notes. This column may be empty. |
 | `状态` | Learning state. Use the allowed values below. |
 | `上次日期` | Last date this word appeared in a generated article, in `YYYY-MM-DD` format. |
 | `出现次数` | Number of generated articles that have included this word. |
@@ -43,6 +42,8 @@ Allowed `状态` values:
 When updating a row:
 
 - Preserve the original `单词` text exactly.
+- Preserve the original `释义` text exactly unless the user explicitly asks to
+  edit definitions or notes.
 - Use `YYYY-MM-DD` for dates.
 - Increment `出现次数` by 1. If it is empty, set it to `1`.
 - Append the generated article link to `出现文章`.
@@ -111,7 +112,7 @@ review mix when due words exist. A practical default is 70-80% new words and
 Generated articles must be Markdown files under:
 
 ```text
-Articals/<LibraryName>/
+Articles/<LibraryName>/
 ```
 
 Use a stable filename:
@@ -131,8 +132,8 @@ created: 2026-05-10
 article_type: story
 target_count: 10
 target_words:
-  - ability (n)
-  - abroad (adv)
+  - ability
+  - abroad
 ---
 ```
 
@@ -150,6 +151,9 @@ In the main body:
 - For phrases, bold the full phrase when natural.
 - For inflected forms, prefer the base entry when natural. If an inflected form
   is needed, keep it clearly connected to the selected word.
+- Use the `单词` column as the target text for article matching and checklist
+  items. Treat `释义` as supporting information, not as text that must appear in
+  the article.
 - Do not bold non-target words just because they are in the same library.
 
 Checklist format:
@@ -157,8 +161,8 @@ Checklist format:
 ```markdown
 ## Vocabulary Checklist
 
-- [ ] ability (n)
-- [ ] abroad (adv)
+- [ ] ability
+- [ ] abroad
 ```
 
 The checklist is for the learner's mastery confirmation. Generating an article
@@ -193,7 +197,7 @@ For each selected word:
 - `上次日期`: set to the article creation date.
 - `出现次数`: increment by 1.
 - `出现文章`: append an Obsidian link such as
-  `[[Articals/PET/2026-05-10-market-story|2026-05-10 market story]]`.
+  `[[Articles/PET/2026-05-10-market-story|2026-05-10 market story]]`.
 
 If a user later checks items in an article checklist and asks the agent to sync
 progress, update those checked words to `mastered`. Leave unchecked words as
@@ -205,7 +209,7 @@ Before finishing any article-generation task, verify:
 
 Article validation before updating the library:
 
-- The article file exists in the expected `Articals/<LibraryName>/` directory.
+- The article file exists in the expected `Articles/<LibraryName>/` directory.
 - YAML frontmatter includes the library, creation date, article type, count, and
   selected words.
 - Every selected word is present in the article body.
